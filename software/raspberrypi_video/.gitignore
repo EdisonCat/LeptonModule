@@ -1,7 +1,1 @@
 .DS_Store
-Makefile
-gen_objs
-gen_mocs
-*.o
-raspberrypi_video
-
