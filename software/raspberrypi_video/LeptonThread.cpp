@@ -1,3 +1,4 @@
+#include <iostream>
 #include "LeptonThread.h"
 
 #include "Palettes.h"
@@ -9,6 +10,8 @@
 #define PACKETS_PER_FRAME 60
 #define FRAME_SIZE_UINT16 (PACKET_SIZE_UINT16*PACKETS_PER_FRAME)
 #define FPS 27;
+
+using namespace std;
 
 LeptonThread::LeptonThread() : QThread()
 {
@@ -23,7 +26,7 @@ void LeptonThread::run()
 	myImage = QImage(80, 60, QImage::Format_RGB888);
 
 	//open spi port
-	SpiOpenPort(0);
+    int ret = SpiOpenPort(1);
 
 	while(true) {
 
@@ -31,23 +34,25 @@ void LeptonThread::run()
 		int resets = 0;
 		for(int j=0;j<PACKETS_PER_FRAME;j++) {
 			//if it's a drop packet, reset j to 0, set to -1 so he'll be at 0 again loop
-			read(spi_cs0_fd, result+sizeof(uint8_t)*PACKET_SIZE*j, sizeof(uint8_t)*PACKET_SIZE);
+            read(spi_cs1_fd, result+sizeof(uint8_t)*PACKET_SIZE*j, sizeof(uint8_t)*PACKET_SIZE);
 			int packetNumber = result[j*PACKET_SIZE+1];
-			if(packetNumber != j) {
+            if(packetNumber != j) {
 				j = -1;
 				resets += 1;
 				usleep(1000);
 				//Note: we've selected 750 resets as an arbitrary limit, since there should never be 750 "null" packets between two valid transmissions at the current poll rate
 				//By polling faster, developers may easily exceed this count, and the down period between frames may then be flagged as a loss of sync
 				if(resets == 750) {
-					SpiClosePort(0);
+                    cout << "Resetting SPI Port\n";
+                    SpiClosePort(1);
 					usleep(750000);
-					SpiOpenPort(0);
+                    SpiOpenPort(1);
+                    resets = 0;
 				}
 			}
 		}
 		if(resets >= 30) {
-			qDebug() << "done reading, resets: " << resets;
+            cout << "done reading, resets: " << resets;
 		}
 
 		frameBuffer = (uint16_t *)result;
@@ -100,7 +105,7 @@ void LeptonThread::run()
 	}
 	
 	//finally, close SPI port just bcuz
-	SpiClosePort(0);
+    SpiClosePort(1);
 }
 
 void LeptonThread::performFFC() {
