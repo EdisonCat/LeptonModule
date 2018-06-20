@@ -25,7 +25,7 @@ int main( int argc, char **argv )
 	//fill the top left corner with red, just bcuz
 	QImage myImage;
     myImage = QImage(320, 240, QImage::Format_RGB888);
-	QRgb red = qRgb(255,0,255);
+        QRgb red = qRgb(255,0,0);
 	for(int i=0;i<80;i++) {
 		for(int j=0;j<60;j++) {
 			myImage.setPixel(i, j, red);
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
 	QObject::connect(button1, SIGNAL(clicked()), thread, SLOT(performFFC()));
 	thread->start();
 	
-	myWidget->show();
+        //myWidget->show();
 
 	return a.exec();
 }

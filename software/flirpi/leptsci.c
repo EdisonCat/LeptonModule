@@ -11,19 +11,13 @@ static uint32_t speed = 16000000;       //16
 static uint16_t delay = 0;
 static int leptfd;
 
-int leptopen(char *device)
+int leptopen()
 {
     uint8_t mode = 0;
-    char *spidev = "/dev/spidev0.0";
-
-    if (device)
-        spidev = device;
-
-    leptfd = open(spidev, O_RDWR);
-    if (leptfd < 0) {
-        perror("spidev device");
+    const char device[] = "/dev/spidev0.0";
+    leptfd = open(device, O_RDWR);
+    if (leptfd < 0)
         return -1;
-    }
     if (-1 == ioctl(leptfd, SPI_IOC_WR_MODE, &mode))
         return -2;
     if (-1 == ioctl(leptfd, SPI_IOC_RD_MODE, &mode))

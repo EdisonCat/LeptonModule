@@ -1,3 +1,3 @@
-int leptopen(char *dev);
+int leptopen(void);
 int leptget(unsigned short *);
 int leptclose(void);
